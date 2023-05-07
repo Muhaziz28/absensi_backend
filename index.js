@@ -4,6 +4,7 @@ import RoleRoute from './routes/RoleRoute.js'
 import AuthRoute from './routes/AuthRoute.js'
 import JabatanRoute from './routes/JabatanRoute.js'
 import db from './config/Database.js';
+
 dotenv.config();
 
 // (async () => {
