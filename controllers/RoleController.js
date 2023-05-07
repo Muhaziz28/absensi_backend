@@ -28,6 +28,18 @@ export const createRole = async (req, res) => {
     }
 }
 
+export const updateRole = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { role_name } = req.body
+        const role = await Role.update({ role_name }, { where: { id } })
+        if (!role) return payload(400, false, "Role not found", null, res)
+        return payload(200, true, "Role updated", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
 export const deleteRole = async (req, res) => {
     try {
         const { id } = req.params
