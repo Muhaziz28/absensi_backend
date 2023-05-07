@@ -53,3 +53,17 @@ export const updateJabatan = async (req, res) => {
         return payload(500, false, error.message, null, res)
     }
 }
+
+export const deleteJabatan = async (req, res) => {
+    try {
+        const { id } = req.params
+        const jabatan = await Jabatan.findOne({ where: { id } })
+        if (!jabatan) return payload(400, false, "Jabatan not found", null, res)
+
+        await Jabatan.destroy({ where: { id } })
+
+        return payload(200, true, "Jabatan deleted", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
