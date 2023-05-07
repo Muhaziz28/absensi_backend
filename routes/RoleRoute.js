@@ -9,6 +9,4 @@ router.post("/role", verifyJwt, createRole)
 router.put("/role/:id", verifyJwt, updateRole)
 router.delete("/role/:id", verifyJwt, deleteRole)
 
-
-
 export default router

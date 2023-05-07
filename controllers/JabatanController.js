@@ -1,7 +1,7 @@
 import payload from "../response_format.js";
 import Jabatan from "../models/JabatanModel.js";
 
-export const getJabatan = async(req, res) => {
+export const getAllJabatan = async(req, res) => {
     try {
         const jabatan = await Jabatan.findAll({
             attributes: {
