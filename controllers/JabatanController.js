@@ -31,3 +31,25 @@ export const createJabatan = async (req, res) => {
         return payload(500, false, error.message, null, res)
     }
 }
+
+export const updateJabatan = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { nama_jabatan, kelas_jabatan, tunjangan_kinerja } = req.body
+
+        const checkJabatan = await Jabatan.findOne({ where: { id } })
+        if (!checkJabatan)
+            return payload(400, false, "Jabatan not found", null, res)
+
+        const jabatan = await Jabatan.findOne({ where: { nama_jabatan } })
+
+        if (jabatan)
+            return payload(400, false, "Jabatan already exist", null, res)
+
+        await Jabatan.update({ nama_jabatan, kelas_jabatan, tunjangan_kinerja }, { where: { id } })
+
+        return payload(200, true, "Jabatan updated", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
