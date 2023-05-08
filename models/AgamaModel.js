@@ -14,6 +14,11 @@ const Agama = db.define(
             type: DataTypes.STRING,
             allowNull: false,
         }
+    },
+    {
+        freezeTableName: true,
+        createdAt: "created_at",
+        updatedAt: "updated_at"
     }
 )
 
