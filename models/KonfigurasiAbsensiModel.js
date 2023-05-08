@@ -36,5 +36,5 @@ const KonfigurasiAbsensi = db.define(
 )
 
 SatuanKerja.hasOne(KonfigurasiAbsensi, { foreignKey: "satuan_kerja_id", sourceKey: "id" })
-
+KonfigurasiAbsensi.belongsTo(SatuanKerja, { foreignKey: "satuan_kerja_id", targetKey: "id" })
 export default KonfigurasiAbsensi
