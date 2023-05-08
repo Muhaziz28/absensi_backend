@@ -1,5 +1,5 @@
 import express from "express"
-import {createAgama, deleteAgama, getAllAgama, updateAgama} from '../controllers/AgamaController.js'
+import { createAgama, deleteAgama, getAllAgama, updateAgama } from '../controllers/AgamaController.js'
 
 const router = express.Router()
 
