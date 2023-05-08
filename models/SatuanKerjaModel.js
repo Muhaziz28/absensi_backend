@@ -23,6 +23,14 @@ const SatuanKerja = db.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        latitude: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        longitude: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         alamat_web_satuan_kerja: {
             type: DataTypes.STRING,
             allowNull: true,

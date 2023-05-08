@@ -7,7 +7,6 @@ import PangkatRoute from "./routes/PangkatRoute.js";
 import AgamaRoute from "./routes/AgamaRoute.js";
 import SatuanKerjaRoute from "./routes/SatuanKerjaRoute.js";
 import db from './config/Database.js';
-
 dotenv.config();
 
 // (async () => {

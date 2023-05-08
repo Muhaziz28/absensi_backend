@@ -19,7 +19,8 @@ export const getAllSatuanKerja = async (req, res) => {
 
 export const createSatuanKerja = async (req, res) => {
     try {
-        const { kode_satuan_kerja, nama_satuan_kerja, email_satuan_kerja, alamat_web_satuan_kerja, alamat_satuan_kerja, no_telp_satuan_kerja, no_fax_satuan_kerja, kode_pos_satuan_kerja, kode_prov, kode_kab, kode_kec, kode_desa } = req.body
+        const { kode_satuan_kerja, nama_satuan_kerja, email_satuan_kerja, latitude,
+            longitude,alamat_web_satuan_kerja, alamat_satuan_kerja, no_telp_satuan_kerja, no_fax_satuan_kerja, kode_pos_satuan_kerja, kode_prov, kode_kab, kode_kec, kode_desa } = req.body
 
         const checkSatuanKerja = await SatuanKerja.findOne({
             where: {
@@ -32,6 +33,8 @@ export const createSatuanKerja = async (req, res) => {
             kode_satuan_kerja,
             nama_satuan_kerja,
             email_satuan_kerja,
+            latitude,
+            longitude,
             alamat_web_satuan_kerja,
             alamat_satuan_kerja,
             no_telp_satuan_kerja,
@@ -52,7 +55,22 @@ export const createSatuanKerja = async (req, res) => {
 export const updateSatuanKerja = async (req, res) => {
     try {
         const { id } = req.params
-        const { kode_satuan_kerja, nama_satuan_kerja, email_satuan_kerja, alamat_web_satuan_kerja, alamat_satuan_kerja, no_telp_satuan_kerja, no_fax_satuan_kerja, kode_pos_satuan_kerja, kode_prov, kode_kab, kode_kec, kode_desa } = req.body
+        const {
+            kode_satuan_kerja,
+            nama_satuan_kerja,
+            latitude,
+            longitude,
+            email_satuan_kerja,
+            alamat_web_satuan_kerja,
+            alamat_satuan_kerja,
+            no_telp_satuan_kerja,
+            no_fax_satuan_kerja,
+            kode_pos_satuan_kerja,
+            kode_prov,
+            kode_kab,
+            kode_kec,
+            kode_desa
+        } = req.body
 
         const checkSatuanKerja = await SatuanKerja.findOne({
             where: {
@@ -64,6 +82,8 @@ export const updateSatuanKerja = async (req, res) => {
         const satuanKerja = await SatuanKerja.update({
             kode_satuan_kerja,
             nama_satuan_kerja,
+            latitude,
+            longitude,
             email_satuan_kerja,
             alamat_web_satuan_kerja,
             alamat_satuan_kerja,
