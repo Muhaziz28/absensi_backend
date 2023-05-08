@@ -6,13 +6,18 @@ const SatuanKerja = db.define(
     "satuan_kerja",
     {
         id: {
-            type: DataTypes.UUID,
-            defaultValue: Sequelize.UUIDV4,
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
             primaryKey: true,
         },
         kode_satuan_kerja: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        nama_satuan_kerja: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
         },
         email_satuan_kerja: {
             type: DataTypes.STRING,
