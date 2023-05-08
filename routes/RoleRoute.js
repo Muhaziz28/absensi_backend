@@ -4,9 +4,9 @@ import {verifyJwt} from "../middleware/verifyJwt.js";
 
 const router = express.Router()
 
-router.get("/role", verifyJwt, getAllRole)
-router.post("/role", verifyJwt, createRole)
-router.put("/role/:id", verifyJwt, updateRole)
-router.delete("/role/:id", verifyJwt, deleteRole)
+router.get("/role",  getAllRole)
+router.post("/role", createRole)
+router.put("/role/:id", updateRole)
+router.delete("/role/:id",  deleteRole)
 
 export default router
