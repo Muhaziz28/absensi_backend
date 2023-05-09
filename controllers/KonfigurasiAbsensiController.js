@@ -18,4 +18,31 @@ export const getKonfigurasiAbsensi = async (req, res) => {
     } catch (e) {
         return payload(500, false, e.toString(), null, res);
     }
-};
+}
+
+export const createKonfigurasiAbsensi = async (req, res) => {
+    try {
+        const { jam_masuk, jam_pulang, radius, satuan_kerja_id } = req.body;
+        if (!jam_masuk || !jam_pulang || !radius || !satuan_kerja_id) {
+            return payload(400, false, "Data tidak lengkap", null, res);
+        }
+        const checkKonfigurasiAbsensiOnSatuanKerja = await KonfigurasiAbsensi.findOne({
+            where: {
+                satuan_kerja_id: satuan_kerja_id
+            }
+        })
+        if (checkKonfigurasiAbsensiOnSatuanKerja) {
+            return payload(400, false, "Konfigurasi Absensi sudah ada", null, res);
+        }
+        const konfigurasiAbsensi = await KonfigurasiAbsensi.create({
+            jam_masuk: new Date(jam_masuk),
+            jam_pulang: new Date(jam_pulang),
+            radius: radius,
+            satuan_kerja_id: satuan_kerja_id
+        })
+
+        return payload(200, true, "Konfigurasi Absensi berhasil ditambahkan", konfigurasiAbsensi, res);
+    } catch (e) {
+        return payload(500, false, e.toString(), null, res);
+    }
+}

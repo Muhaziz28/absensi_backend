@@ -12,7 +12,7 @@ dotenv.config();
 
 export const register = async (req, res) => {
     try {
-        const { username, email, password } = req.body
+        const { username, email, password, satuan_kerja_id } = req.body
         const emailExist = await User.findOne({ where: { email } })
 
         if (emailExist) return payload(400, false, "Email already exists", null, res)
@@ -24,7 +24,8 @@ export const register = async (req, res) => {
             username,
             email,
             password: hashedPassword,
-            role_id: 3
+            role_id: 3,
+            satuan_kerja_id,
         })
 
         const activationCode = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" })

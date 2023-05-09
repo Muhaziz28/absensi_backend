@@ -8,6 +8,7 @@ import AgamaRoute from "./routes/AgamaRoute.js";
 import SatuanKerjaRoute from "./routes/SatuanKerjaRoute.js";
 import KonfigurasiAbsensiRoute from "./routes/KonfigurasiAbsensiRoute.js";
 import db from './config/Database.js';
+
 dotenv.config();
 
 // (async () => {
