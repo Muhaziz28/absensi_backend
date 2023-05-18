@@ -27,7 +27,7 @@ const AbsenPulang = db.define(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        keterlambatan: {
+        cepat: {
             type: DataTypes.TIME,
             allowNull: true,
         },
