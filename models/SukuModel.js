@@ -1,7 +1,7 @@
-import {Sequelize} from "sequelize"
-import db from "../config/database.js"
+import { Sequelize } from "sequelize"
+import db from "../config/Database.js"
 
-const {DataTypes} = Sequelize
+const { DataTypes } = Sequelize
 const SukuModel = db.define(
     "suku",
     {
