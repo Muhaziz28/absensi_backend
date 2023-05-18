@@ -2,7 +2,7 @@ import { Sequelize } from "sequelize"
 import db from "../config/Database.js"
 
 const { DataTypes } = Sequelize
-const SukuModel = db.define(
+const Suku = db.define(
     "suku",
     {
         id: {
@@ -22,4 +22,4 @@ const SukuModel = db.define(
     }
 )
 
-export default SukuModel
+export default Suku
