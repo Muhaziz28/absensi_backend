@@ -7,14 +7,16 @@ import AccessToken from "../models/AccessTokenModel.js";
 import ip from "ip"
 import Role from "../models/RoleModel.js";
 import sendMail from "../helper/sendMail.js";
+import UserDetail from "../models/UserDetailModel.js"
+import Suku from "../models/SukuModel.js"
+import Agama from "../models/AgamaModel.js"
 
 dotenv.config();
 
 export const register = async (req, res) => {
     try {
-        const { username, email, password, satuan_kerja_id } = req.body
+        const { username, email, password, satuan_kerja_id, tempat_lahir, tanggal_lahir, no_hp, jenis_kelamin, foto, status_perkawinan, agama_id, suku_id } = req.body
         const emailExist = await User.findOne({ where: { email } })
-
         if (emailExist) return payload(400, false, "Email already exists", null, res)
 
         const salt = await bcrypt.genSalt(10)
@@ -28,7 +30,21 @@ export const register = async (req, res) => {
             satuan_kerja_id,
         })
 
-        const activationCode = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" })
+        const user = await User.findOne({ where: { email } })
+
+        await UserDetail.create({
+            user_id: user.id,
+            tempat_lahir,
+            tanggal_lahir,
+            no_hp,
+            jenis_kelamin,
+            foto,
+            status_perkawinan,
+            agama_id,
+            suku_id,
+        })
+
+        const activationCode = jwt.sign({ email }, process.env.JWT_SECRET)
         const activationLink = `http://localhost:4000/activate/` + activationCode
         const emailText = `
                 <h1>Account Activation</h1>
@@ -56,6 +72,7 @@ export const login = async (req, res) => {
         } else {
             user = await User.findOne({ where: { username } })
         }
+
         if (!user) return payload(400, false, "Username or email not found", null, res)
 
         if (user.is_active === false) return payload(400, false, "Your account is not active", null, res)
@@ -63,7 +80,7 @@ export const login = async (req, res) => {
         const validPassword = await bcrypt.compare(password, user.password)
         if (!validPassword) return payload(400, false, "Invalid password", null, res)
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" })
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET)
         await AccessToken.create({
             user_id: user.id,
             access_token: token,
@@ -77,8 +94,28 @@ export const login = async (req, res) => {
             include: {
                 model: Role,
                 attributes: ["id", "role_name"]
-            }
+            },
         })
+
+        const userDetail = await UserDetail.findOne({
+            where: { user_id: user.id },
+            attributes: {
+                exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+            },
+            include: [
+                {
+                    model: Agama,
+                    attributes: ["id", "agama"]
+                },
+                {
+                    model: Suku,
+                    attributes: ["id", "nama_suku"]
+                }
+            ]
+        })
+
+        currUser.dataValues.userDetail = userDetail
+
         return payload(200, true, "Login success", { token, user: currUser }, res)
     } catch (e) {
         return payload(500, false, e.message, null, res)
@@ -113,6 +150,25 @@ export const me = async (req, res) => {
                 attributes: ["id", "role_name"]
             }
         })
+
+        const userDetail = await UserDetail.findOne({
+            where: { user_id: id },
+            attributes: {
+                exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+            },
+            include: [
+                {
+                    model: Agama,
+                    attributes: ["id", "agama"]
+                },
+                {
+                    model: Suku,
+                    attributes: ["id", "nama_suku"]
+                }
+            ]
+        })
+
+        user.dataValues.userDetail = userDetail
 
         return payload(200, true, "User data", user, res)
     } catch (error) {
