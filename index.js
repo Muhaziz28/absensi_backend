@@ -8,6 +8,7 @@ import AgamaRoute from "./routes/AgamaRoute.js";
 import SatuanKerjaRoute from "./routes/SatuanKerjaRoute.js";
 import KonfigurasiAbsensiRoute from "./routes/KonfigurasiAbsensiRoute.js";
 import SukuRoute from "./routes/SukuRoute.js";
+import ProfileRoute from "./routes/ProfileRoute.js"
 import db from './config/Database.js';
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(AgamaRoute)
 app.use(SatuanKerjaRoute)
 app.use(KonfigurasiAbsensiRoute)
 app.use(SukuRoute)
+app.use(ProfileRoute)
 
 app.listen(process.env.APP_PORT, () => {
     console.log(`Server is running on port ${process.env.APP_PORT}`)
