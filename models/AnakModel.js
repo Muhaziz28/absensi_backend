@@ -4,8 +4,8 @@ import db from "../config/Database.js"
 import Agama from "./AgamaModel.js"
 
 const { DataTypes } = Sequelize
-const Istri = db.define(
-    "data_istri",
+const Anak = db.define(
+    "data_anak",
     {
         id: {
             type: DataTypes.INTEGER,
@@ -16,23 +16,31 @@ const Istri = db.define(
             type: DataTypes.UUID,
             allowNull: false
         },
-        nama_istri: {
+        nama_anak: {
             type: DataTypes.STRING,
             allowNull: false
         },
-        tempat_lahir_istri: {
+        tempat_lahir_anak: {
             type: DataTypes.STRING,
             allowNull: false
         },
-        tanggal_lahir_istri: {
+        tanggal_lahir_anak: {
             type: DataTypes.DATE,
             allowNull: false
         },
-        pendidikan_terakhir_istri: {
+        jenis_kelamin_anak: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        anak_ke: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        pendidikan_terakhir_anak: {
             type: DataTypes.STRING,
             allowNull: true
         },
-        pekerjaan_istri: {
+        pekerjaan_anak: {
             type: DataTypes.STRING,
             allowNull: true
         },
@@ -48,10 +56,10 @@ const Istri = db.define(
     }
 )
 
-User.hasMany(Istri, { foreignKey: "user_id", sourceKey: "id" })
-Istri.belongsTo(User, { foreignKey: "user_id", targetKey: "id" })
+User.hasMany(Anak, { foreignKey: "user_id", sourceKey: "id" })
+Anak.belongsTo(User, { foreignKey: "user_id", targetKey: "id" })
 
-Agama.hasMany(Istri, { foreignKey: "agama_id", sourceKey: "id" })
-Istri.belongsTo(Agama, { foreignKey: "agama_id", targetKey: "id" })
+Agama.hasMany(Anak, { foreignKey: "agama_id", sourceKey: "id" })
+Anak.belongsTo(Agama, { foreignKey: "agama_id", targetKey: "id" })
 
-export default Istri
+export default Anak
