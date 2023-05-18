@@ -35,12 +35,11 @@ export const register = async (req, res) => {
                 <p>Hi ${username},</p>
                 <p>Thank you for registering</p>
                 <p>Click link below to activate your account</p>
-                <a href="${activationLink}">${activationLink}</a>
-        `
+                <a href="${activationLink}">${activationLink}</a>`
 
-        await sendMail(email, emailText)
+        sendMail(email, emailText)
 
-        return payload(200, true, "User created", null, res)
+        return payload(200, true, "Register success, please check your email to activate your account", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }
@@ -49,20 +48,20 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { username, password } = req.body
-        if(!username || !password) return payload(400, false, "Please fill all fields", null, res)
+        if (!username || !password) return payload(400, false, "Please fill all fields", null, res)
 
         let user
-        if(username.includes("@")) {
+        if (username.includes("@")) {
             user = await User.findOne({ where: { email: username } })
         } else {
             user = await User.findOne({ where: { username } })
         }
-        if(!user) return payload(400, false, "User not found", null, res)
+        if (!user) return payload(400, false, "Username or email not found", null, res)
 
-        if(user.is_active === false) return payload(400, false, "Your account is not active", null, res)
+        if (user.is_active === false) return payload(400, false, "Your account is not active", null, res)
 
         const validPassword = await bcrypt.compare(password, user.password)
-        if(!validPassword) return payload(400, false, "Invalid password", null, res)
+        if (!validPassword) return payload(400, false, "Invalid password", null, res)
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" })
         await AccessToken.create({
@@ -80,7 +79,7 @@ export const login = async (req, res) => {
                 attributes: ["id", "role_name"]
             }
         })
-        return payload(200, true, "Login success", {  token , user: currUser }, res)
+        return payload(200, true, "Login success", { token, user: currUser }, res)
     } catch (e) {
         return payload(500, false, e.message, null, res)
     }
@@ -96,6 +95,26 @@ export const activate = async (req, res) => {
             where: { email }
         })
         return payload(200, true, "Account activated", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
+export const me = async (req, res) => {
+    try {
+        const { id } = req.user
+        const user = await User.findOne({
+            where: { id },
+            attributes: {
+                exclude: ["password", "role_id", "createdAt", "updatedAt"],
+            },
+            include: {
+                model: Role,
+                attributes: ["id", "role_name"]
+            }
+        })
+
+        return payload(200, true, "User data", user, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

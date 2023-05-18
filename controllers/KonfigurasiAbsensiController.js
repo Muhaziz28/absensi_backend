@@ -34,9 +34,10 @@ export const createKonfigurasiAbsensi = async (req, res) => {
         if (checkKonfigurasiAbsensiOnSatuanKerja) {
             return payload(400, false, "Konfigurasi Absensi sudah ada", null, res);
         }
+        console.log(jam_masuk)
         const konfigurasiAbsensi = await KonfigurasiAbsensi.create({
-            jam_masuk: new Date(jam_masuk),
-            jam_pulang: new Date(jam_pulang),
+            jam_masuk: jam_masuk,
+            jam_pulang: jam_pulang,
             radius: radius,
             satuan_kerja_id: satuan_kerja_id
         })

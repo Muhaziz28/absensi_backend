@@ -1,13 +1,29 @@
 import payload from "../response_format.js";
 import Jabatan from "../models/JabatanModel.js";
+import { Op } from "sequelize";
 
-export const getAllJabatan = async(req, res) => {
+export const getAllJabatan = async (req, res) => {
     try {
-        const jabatan = await Jabatan.findAll({
-            attributes: {
-                exclude: ["created_at", "updated_at"]
-            }
-        })
+        let jabatan
+        let search = req.query.search
+        if (search) {
+            jabatan = await Jabatan.findAll({
+                attributes: {
+                    exclude: ["created_at", "updated_at"]
+                },
+                where: {
+                    nama_jabatan: {
+                        [Op.like]: `%${search}%`
+                    }
+                }
+            })
+        } else {
+            jabatan = await Jabatan.findAll({
+                attributes: {
+                    exclude: ["created_at", "updated_at"]
+                }
+            })
+        }
         return payload(200, true, "All jabatan", jabatan, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
@@ -17,10 +33,10 @@ export const getAllJabatan = async(req, res) => {
 export const createJabatan = async (req, res) => {
     try {
         const { nama_jabatan, kelas_jabatan, tunjangan_kinerja } = req.body
-        if (nama_jabatan.length > 1) {
-            const checkJabatan = await Jabatan.findOne({ where: { nama_jabatan } })
-            if (checkJabatan) return payload(400, false, "Jabatan already exist", null, res)
-        }
+
+        const checkJabatan = await Jabatan.findOne({ where: { nama_jabatan } })
+        // if (checkJabatan) return payload(400, false, "Jabatan already exist", null, res)
+
         const jabatan = await Jabatan.create({
             nama_jabatan,
             kelas_jabatan,
@@ -41,10 +57,10 @@ export const updateJabatan = async (req, res) => {
         if (!checkJabatan)
             return payload(400, false, "Jabatan not found", null, res)
 
-        const jabatan = await Jabatan.findOne({ where: { nama_jabatan } })
+        // const jabatan = await Jabatan.findOne({ where: { nama_jabatan } })
 
-        if (jabatan)
-            return payload(400, false, "Jabatan already exist", null, res)
+        // if (jabatan)
+        //     return payload(400, false, "Jabatan already exist", null, res)
 
         await Jabatan.update({ nama_jabatan, kelas_jabatan, tunjangan_kinerja }, { where: { id } })
 
