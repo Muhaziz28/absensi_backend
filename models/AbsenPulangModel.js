@@ -31,6 +31,11 @@ const AbsenPulang = db.define(
             type: DataTypes.TIME,
             allowNull: true,
         },
+    },
+    {
+        freezeTableName: true,
+        createdAt: "created_at",
+        updatedAt: "updated_at",
     }
 )
 

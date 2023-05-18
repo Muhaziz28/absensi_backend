@@ -17,11 +17,11 @@ const AbsenMasuk = db.define(
         },
         jam_masuk: {
             type: DataTypes.TIME,
-            allowNull: false,
+            allowNull: true,
         },
         radius: {
             type: DataTypes.DOUBLE,
-            allowNull: false,
+            allowNull: true,
         },
         status: {
             type: DataTypes.STRING,
@@ -31,6 +31,11 @@ const AbsenMasuk = db.define(
             type: DataTypes.TIME,
             allowNull: true,
         },
+    },
+    {
+        freezeTableName: true,
+        createdAt: "created_at",
+        updatedAt: "updated_at",
     }
 )
 
