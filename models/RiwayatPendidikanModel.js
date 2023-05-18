@@ -33,6 +33,7 @@ const RiwayatPendidikan = db.define(
         },
         gelar: {
             type: DataTypes.STRING,
+            allowNull: true,
         }
     },
     {
