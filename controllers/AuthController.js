@@ -10,19 +10,26 @@ import sendMail from "../helper/sendMail.js";
 import UserDetail from "../models/UserDetailModel.js"
 import Suku from "../models/SukuModel.js"
 import Agama from "../models/AgamaModel.js"
-
+import SatuanKerja from "../models/SatuanKerjaModel.js"
+import Jabatan from "../models/JabatanModel.js"
+import Pangkat from "../models/PangkatModel.js"
 dotenv.config();
 
 export const register = async (req, res) => {
     try {
-        const { username, email, password, satuan_kerja_id, tempat_lahir, tanggal_lahir, no_hp, jenis_kelamin, foto, status_perkawinan, agama_id, suku_id } = req.body
+        const { name, username, email, password, satuan_kerja_id, tempat_lahir, tanggal_lahir, no_hp, jenis_kelamin, foto, status_perkawinan, agama_id, suku_id } = req.body
+
         const emailExist = await User.findOne({ where: { email } })
         if (emailExist) return payload(400, false, "Email already exists", null, res)
+
+        const usernameExist = await User.findOne({ where: { username } })
+        if (usernameExist) return payload(400, false, "Username already exists", null, res)
 
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
 
         await User.create({
+            name,
             username,
             email,
             password: hashedPassword,
@@ -45,7 +52,7 @@ export const register = async (req, res) => {
         })
 
         const activationCode = jwt.sign({ email }, process.env.JWT_SECRET)
-        const activationLink = `http://localhost:4000/activate/` + activationCode
+        const activationLink = `${process.env.BASE_URL}/activate/${activationCode}`
         const emailText = `
                 <h1>Account Activation</h1>
                 <p>Hi ${username},</p>
@@ -80,7 +87,7 @@ export const login = async (req, res) => {
         const validPassword = await bcrypt.compare(password, user.password)
         if (!validPassword) return payload(400, false, "Invalid password", null, res)
 
-        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET)
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" })
         await AccessToken.create({
             user_id: user.id,
             access_token: token,
@@ -89,32 +96,43 @@ export const login = async (req, res) => {
         const currUser = await User.findOne({
             where: { id: user.id },
             attributes: {
-                exclude: ["password", "role_id", "createdAt", "updatedAt"],
-            },
-            include: {
-                model: Role,
-                attributes: ["id", "role_name"]
-            },
-        })
-
-        const userDetail = await UserDetail.findOne({
-            where: { user_id: user.id },
-            attributes: {
-                exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+                exclude: ["password", "role_id", "createdAt", "updatedAt", "pangkat_id", "jabatan_id", "satuan_kerja_id"]
             },
             include: [
                 {
-                    model: Agama,
-                    attributes: ["id", "agama"]
+                    model: Role,
+                    attributes: ["id", "role_name"]
                 },
                 {
-                    model: Suku,
-                    attributes: ["id", "nama_suku"]
+                    model: Jabatan,
+                    attributes: ["id", "kelas_jabatan", "nama_jabatan", "tunjangan_kinerja"]
+                },
+                {
+                    model: Pangkat,
+                    attributes: ["id", "nama_pangkat"]
+                },
+                {
+                    model: SatuanKerja,
+                    attributes: ["id", "nama_satuan_kerja"]
+                },
+                {
+                    model: UserDetail,
+                    attributes: {
+                        exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+                    },
+                    include: [
+                        {
+                            model: Agama,
+                            attributes: ["id", "agama"]
+                        },
+                        {
+                            model: Suku,
+                            attributes: ["id", "nama_suku"]
+                        },
+                    ]
                 }
             ]
         })
-
-        currUser.dataValues.userDetail = userDetail
 
         return payload(200, true, "Login success", { token, user: currUser }, res)
     } catch (e) {
@@ -143,34 +161,57 @@ export const me = async (req, res) => {
         const user = await User.findOne({
             where: { id },
             attributes: {
-                exclude: ["password", "role_id", "createdAt", "updatedAt"],
-            },
-            include: {
-                model: Role,
-                attributes: ["id", "role_name"]
-            }
-        })
-
-        const userDetail = await UserDetail.findOne({
-            where: { user_id: id },
-            attributes: {
-                exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+                exclude: ["password", "role_id", "createdAt", "updatedAt", "pangkat_id", "jabatan_id", "satuan_kerja_id"]
             },
             include: [
                 {
-                    model: Agama,
-                    attributes: ["id", "agama"]
+                    model: Role,
+                    attributes: ["id", "role_name"]
                 },
                 {
-                    model: Suku,
-                    attributes: ["id", "nama_suku"]
+                    model: Jabatan,
+                    attributes: ["id", "kelas_jabatan", "nama_jabatan", "tunjangan_kinerja"]
+                },
+                {
+                    model: Pangkat,
+                    attributes: ["id", "nama_pangkat"]
+                },
+                {
+                    model: SatuanKerja,
+                    attributes: ["id", "nama_satuan_kerja"]
+                },
+                {
+                    model: UserDetail,
+                    attributes: {
+                        exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+                    },
+                    include: [
+                        {
+                            model: Agama,
+                            attributes: ["id", "agama"]
+                        },
+                        {
+                            model: Suku,
+                            attributes: ["id", "nama_suku"]
+                        },
+                    ]
                 }
             ]
         })
 
-        user.dataValues.userDetail = userDetail
-
         return payload(200, true, "User data", user, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        const { id } = req.user
+        await AccessToken.destroy({
+            where: { user_id: id }
+        })
+        return payload(200, true, "Logout success", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

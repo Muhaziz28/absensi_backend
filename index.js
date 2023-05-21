@@ -13,6 +13,8 @@ import IstriRoute from "./routes/IstriRoute.js"
 import AnakRoute from "./routes/AnakRoute.js"
 import RiwayatPendidikanRoute from "./routes/RiwayatPendidikanRoute.js"
 import AbsenRoute from "./routes/AbsenRoute.js"
+import PersonilRoute from "./routes/PersonilRoute.js"
+import TunjanganRoute from "./routes/TunjanganRoute.js"
 import db from './config/Database.js';
 
 dotenv.config();
@@ -37,6 +39,8 @@ app.use(IstriRoute)
 app.use(AnakRoute)
 app.use(RiwayatPendidikanRoute)
 app.use(AbsenRoute)
+app.use(PersonilRoute)
+app.use(TunjanganRoute)
 
 app.listen(process.env.APP_PORT, () => {
     console.log(`Server is running on port ${process.env.APP_PORT}`)

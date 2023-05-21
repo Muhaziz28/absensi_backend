@@ -42,6 +42,47 @@ export const getCurrentHistoryAbsen = async (req, res) => {
     }
 }
 
+export const getCurrentHistoryAbsenToday = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(" ")[1]
+        const { id } = jwt.verify(token, process.env.JWT_SECRET)
+        if (!id) return payload(401, false, "Unauthorized", null, res)
+
+        const historyAbsenMasuk = await AbsenMasuk.findOne({
+            where: [
+                { user_id: id },
+                { created_at: { [Op.gte]: new Date().toLocaleDateString() } }
+            ],
+            attributes: {
+                exclude: ["user_id"],
+            },
+            order: [["created_at", "DESC"]],
+
+        })
+
+        const historyAbsenKeluar = await AbsenPulang.findOne({
+            where: [
+                { user_id: id },
+                { created_at: { [Op.gte]: new Date().toLocaleDateString() } }
+            ],
+            attributes: {
+                exclude: ["user_id"]
+            },
+            order: [["created_at", "DESC"]]
+        })
+
+        const historyAbsen = {
+            tanggal: new Date().toLocaleDateString(),
+            absen_masuk: historyAbsenMasuk,
+            absen_keluar: historyAbsenKeluar
+        }
+
+        return payload(200, true, "Data history absen hari ini", historyAbsen, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
 export const absenMasuk = async (req, res) => {
     try {
         const token = req.headers.authorization.split(" ")[1]
@@ -67,7 +108,6 @@ export const absenMasuk = async (req, res) => {
         })
 
         if (historyAbsenMasuk) return payload(400, false, "Anda sudah absen masuk", null, res)
-
 
         const konfigurasiAbsensi = await KonfigurasiAbsensi.findAll()
 
@@ -127,7 +167,29 @@ export const absenPulang = async (req, res) => {
         const { id } = jwt.verify(token, process.env.JWT_SECRET)
         if (!id) return payload(401, false, "Unauthorized", null, res)
 
+        const absenMasukCheck = await AbsenMasuk.findOne({
+            where: [
+                { user_id: id },
+                { created_at: { [Op.gte]: new Date().toLocaleDateString() } }
+            ],
+            attributes: {
+                exclude: ["user_id", "created_at", "updated_at"],
+            },
+            order: [
+                ["created_at", "DESC"]
+            ]
+        })
+        if (!absenMasukCheck) return payload(400, false, "Anda belum absen masuk", null, res)
+
         const { jam_pulang, radius, status } = req.body
+
+        const konfigurasiAbsensiCheck = await KonfigurasiAbsensi.findAll()
+        // user tidak dapat absen sebelum settingan jam pulang
+        if (jam_pulang < konfigurasiAbsensiCheck[0].jam_pulang) {
+            return payload(400, false, `Anda tidak dapat absen sebelum jam ${konfigurasiAbsensiCheck[0].jam_pulang}`, null, res)
+        }
+
+
         let cepat
         let tanggalSaatIni = new Date().toLocaleDateString()
         const historyAbsenPulang = await AbsenPulang.findOne({
