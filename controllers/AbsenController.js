@@ -4,6 +4,7 @@ import AbsenPulang from "../models/AbsenPulangModel.js"
 import KonfigurasiAbsensi from "../models/KonfigurasiAbsensiModel.js"
 import payload from "../response_format.js"
 import jwt from "jsonwebtoken"
+import User from "../models/UserModel.js"
 
 export const getCurrentHistoryAbsen = async (req, res) => {
     try {
@@ -109,14 +110,25 @@ export const absenMasuk = async (req, res) => {
 
         if (historyAbsenMasuk) return payload(400, false, "Anda sudah absen masuk", null, res)
 
-        const konfigurasiAbsensi = await KonfigurasiAbsensi.findAll()
+        const satuanKerjaUser = await User.findOne({
+            where: [
+                { id }
+            ],
+            attributes: {
+                exclude: ["id", "password", "createdAt", "updatedAt"],
+            },
+        })
 
-        const konfigurasiAbsensiRadius = konfigurasiAbsensi[0].radius
+        const konfigurasiAbsensi = await KonfigurasiAbsensi.findOne({
+            where: { id: satuanKerjaUser.satuan_kerja_id }
+        })
+
+        const konfigurasiAbsensiRadius = konfigurasiAbsensi.radius
         if (radius > konfigurasiAbsensiRadius) {
             return payload(400, false, "Anda terlalu jauh dari kantor", null, res)
         }
 
-        const konfigurasiAbsensiJamMasuk = konfigurasiAbsensi[0].jam_masuk
+        const konfigurasiAbsensiJamMasuk = konfigurasiAbsensi.jam_masuk
         const konfigurasiAbsensiJamMasukSplit = konfigurasiAbsensiJamMasuk.split(":")
         const konfigurasiAbsensiJamMasukHour = konfigurasiAbsensiJamMasukSplit[0]
         const konfigurasiAbsensiJamMasukMinute = konfigurasiAbsensiJamMasukSplit[1]
@@ -183,12 +195,22 @@ export const absenPulang = async (req, res) => {
 
         const { jam_pulang, radius, status } = req.body
 
-        const konfigurasiAbsensiCheck = await KonfigurasiAbsensi.findAll()
-        // user tidak dapat absen sebelum settingan jam pulang
-        if (jam_pulang < konfigurasiAbsensiCheck[0].jam_pulang) {
-            return payload(400, false, `Anda tidak dapat absen sebelum jam ${konfigurasiAbsensiCheck[0].jam_pulang}`, null, res)
-        }
+        const satuanKerjaUser = await User.findOne({
+            where: [
+                { id }
+            ],
+            attributes: {
+                exclude: ["id", "password", "createdAt", "updatedAt"],
+            },
+        })
 
+        const konfigurasiAbsensiCheck = await KonfigurasiAbsensi.findOne({
+            where: { id: satuanKerjaUser.satuan_kerja_id }
+        })
+
+        if (jam_pulang < konfigurasiAbsensiCheck.jam_pulang) {
+            return payload(400, false, `Anda tidak dapat absen sebelum jam ${konfigurasiAbsensiCheck.jam_pulang}`, null, res)
+        }
 
         let cepat
         let tanggalSaatIni = new Date().toLocaleDateString()
@@ -207,14 +229,12 @@ export const absenPulang = async (req, res) => {
 
         if (historyAbsenPulang) return payload(400, false, "Anda sudah absen pulang", null, res)
 
-        const konfigurasiAbsensi = await KonfigurasiAbsensi.findAll()
-
-        const konfigurasiAbsensiRadius = konfigurasiAbsensi[0].radius
+        const konfigurasiAbsensiRadius = konfigurasiAbsensiCheck.radius
         if (radius > konfigurasiAbsensiRadius) {
             return payload(400, false, "Anda terlalu jauh dari kantor", null, res)
         }
 
-        const konfigurasiAbsensiJamPulang = konfigurasiAbsensi[0].jam_pulang
+        const konfigurasiAbsensiJamPulang = konfigurasiAbsensiCheck.jam_pulang
         const konfigurasiAbsensiJamPulangSplit = konfigurasiAbsensiJamPulang.split(":")
         const konfigurasiAbsensiJamPulangHour = konfigurasiAbsensiJamPulangSplit[0]
         const konfigurasiAbsensiJamPulangMinute = konfigurasiAbsensiJamPulangSplit[1]

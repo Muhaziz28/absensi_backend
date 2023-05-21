@@ -105,7 +105,7 @@ export const createDataIstri = async (req, res) => {
         const { id } = req.user
         const { nama_istri, tempat_lahir_istri, tanggal_lahir_istri, pendidikan_terakhir_istri, pekerjaan_istri, agama_id } = req.body
 
-        const istri = await Istri.create({
+        await Istri.create({
             user_id: id,
             nama_istri,
             tempat_lahir_istri,
@@ -115,7 +115,7 @@ export const createDataIstri = async (req, res) => {
             agama_id
         })
 
-        return payload(201, true, "Data istri berhasil ditambahkan", istri, res)
+        return payload(201, true, "Data istri berhasil ditambahkan", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

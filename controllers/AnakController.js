@@ -108,7 +108,7 @@ export const createDataAnak = async (req, res) => {
 
         const { nama_anak, anak_ke, jenis_kelamin_anak, tempat_lahir_anak, tanggal_lahir_anak, pendidikan_terakhir_anak, pekerjaan_anak, agama_id } = req.body
 
-        const anak = await Anak.create({
+        await Anak.create({
             user_id: id,
             nama_anak,
             anak_ke,
@@ -120,7 +120,7 @@ export const createDataAnak = async (req, res) => {
             agama_id
         })
 
-        return payload(201, true, "Data anak berhasil ditambahkan", anak, res)
+        return payload(201, true, "Data anak berhasil ditambahkan", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

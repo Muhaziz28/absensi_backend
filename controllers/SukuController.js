@@ -12,13 +12,20 @@ export const getAllSuku = async (req, res) => {
                     nama_suku: {
                         [Op.like]: `%${search}%`
                     }
+                },
+                attributes: {
+                    exclude: ["created_at", "updated_at"]
                 }
             })
             if (suku.length === 0) return payload(400, false, "Suku not found", null, res)
 
             return payload(200, true, "All suku", suku, res)
         } else {
-            suku = await Suku.findAll()
+            suku = await Suku.findAll({
+                attributes: {
+                    exclude: ["created_at", "updated_at"]
+                }
+            })
             return payload(200, true, "All suku", suku, res)
         }
     } catch (error) {

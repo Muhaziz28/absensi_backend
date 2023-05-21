@@ -10,10 +10,17 @@ export const getAllAgama = async (req, res) => {
             agama = await Agama.findAll({
                 where: {
                     agama: { [Op.like]: `%${search}%` }
+                },
+                attributes: {
+                    exclude: ["created_at", "updated_at"]
                 }
             })
         } else {
-            agama = await Agama.findAll()
+            agama = await Agama.findAll({
+                attributes: {
+                    exclude: ["created_at", "updated_at"]
+                }
+            })
         }
         return payload(200, true, "Agama data", agama, res)
     } catch (error) {

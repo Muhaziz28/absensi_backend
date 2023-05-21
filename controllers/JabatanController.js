@@ -37,12 +37,12 @@ export const createJabatan = async (req, res) => {
         const checkJabatan = await Jabatan.findOne({ where: { nama_jabatan } })
         // if (checkJabatan) return payload(400, false, "Jabatan already exist", null, res)
 
-        const jabatan = await Jabatan.create({
+        await Jabatan.create({
             nama_jabatan,
             kelas_jabatan,
             tunjangan_kinerja
         })
-        return payload(200, true, "Jabatan created", jabatan, res)
+        return payload(200, true, "Jabatan created", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

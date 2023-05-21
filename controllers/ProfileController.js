@@ -1,4 +1,7 @@
 import Agama from "../models/AgamaModel.js"
+import Jabatan from "../models/JabatanModel.js"
+import Pangkat from "../models/PangkatModel.js"
+import Role from "../models/RoleModel.js"
 import SatuanKerja from "../models/SatuanKerjaModel.js"
 import Suku from "../models/SukuModel.js"
 import UserDetail from "../models/UserDetailModel.js"
@@ -19,29 +22,39 @@ export const myProfile = async (req, res) => {
             },
             include: [
                 {
-                    model: SatuanKerja,
-                }
-            ]
-        })
-
-        const userDetail = await UserDetail.findOne({
-            where: { user_id: user.id },
-            attributes: {
-                exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
-            },
-            include: [
-                {
-                    model: Agama,
-                    attributes: ["id", "agama"]
+                    model: Role,
+                    attributes: ["id", "role_name"]
                 },
                 {
-                    model: Suku,
-                    attributes: ["id", "nama_suku"]
+                    model: Jabatan,
+                    attributes: ["id", "kelas_jabatan", "nama_jabatan", "tunjangan_kinerja"]
+                },
+                {
+                    model: Pangkat,
+                    attributes: ["id", "nama_pangkat"]
+                },
+                {
+                    model: SatuanKerja,
+                    attributes: ["id", "nama_satuan_kerja"]
+                },
+                {
+                    model: UserDetail,
+                    attributes: {
+                        exclude: ["user_id", "agama_id", "suku_id", "createdAt", "updatedAt"],
+                    },
+                    include: [
+                        {
+                            model: Agama,
+                            attributes: ["id", "agama"]
+                        },
+                        {
+                            model: Suku,
+                            attributes: ["id", "nama_suku"]
+                        },
+                    ]
                 }
             ]
         })
-
-        user.dataValues.userDetail = userDetail
 
         return payload(200, true, "Success", user, res)
     } catch (error) {

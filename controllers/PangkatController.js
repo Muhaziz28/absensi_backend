@@ -37,8 +37,8 @@ export const createPangkat = async (req, res) => {
         const checkPangkat = await Pangkat.findOne({ where: { nama_pangkat } })
         if (checkPangkat) return payload(400, false, "Pangkat sudah ada", null, res)
 
-        const pangkat = await Pangkat.create({ nama_pangkat })
-        return payload(200, true, "Pangkat created", pangkat, res)
+        await Pangkat.create({ nama_pangkat })
+        return payload(200, true, "Pangkat created", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

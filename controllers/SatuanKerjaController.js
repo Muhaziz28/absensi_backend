@@ -37,7 +37,7 @@ export const createSatuanKerja = async (req, res) => {
         })
         if (checkKodeSatuanKerja) return payload(400, false, "Kode satuan kerja sudah terdaftar", null, res)
 
-        const satuanKerja = await SatuanKerja.create({
+        await SatuanKerja.create({
             kode_satuan_kerja,
             nama_satuan_kerja,
             email_satuan_kerja,
@@ -54,7 +54,7 @@ export const createSatuanKerja = async (req, res) => {
             kode_desa
         })
 
-        return payload(200, true, "Berhasil menambahkan data satuan kerja", satuanKerja, res)
+        return payload(200, true, "Berhasil menambahkan data satuan kerja", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

@@ -22,8 +22,8 @@ export const createRole = async (req, res) => {
             if (checkRole) return payload(400, false, "Role already exist", null, res)
         }
 
-        const role = await Role.create({ role_name })
-        return payload(200, true, "Role created", role, res)
+        await Role.create({ role_name })
+        return payload(200, true, "Role created", null, res)
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }
