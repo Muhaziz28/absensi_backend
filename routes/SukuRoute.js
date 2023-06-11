@@ -4,7 +4,7 @@ import { verifyJwt } from "../middleware/verifyJwt.js"
 
 const router = express.Router()
 
-router.get("/suku", verifyJwt, getAllSuku)
+router.get("/suku", getAllSuku)
 router.post("/suku", verifyJwt, createSuku)
 
 export default router
