@@ -1,16 +1,29 @@
 import payload from "../response_format.js";
 import KonfigurasiAbsensi from "../models/KonfigurasiAbsensiModel.js";
 import SatuanKerjaModel from "../models/SatuanKerjaModel.js";
+import User from "../models/UserModel.js";
 
 export const getKonfigurasiAbsensi = async (req, res) => {
     try {
-        const konfigurasiAbsensi = await KonfigurasiAbsensi.findAll({
-            include: [
-                {
-                    model: SatuanKerjaModel,
-                    as: "satuan_kerja",
-                }
-            ]
+        const { id } = req.user;
+        const user = await User.findOne({
+            where: { id },
+        });
+
+        const satuanKerja = await SatuanKerjaModel.findOne({
+            where: {
+                id: user.satuan_kerja_id
+            }
+        })
+
+        const konfigurasiAbsensi = await KonfigurasiAbsensi.findOne({
+            where: {
+                satuan_kerja_id: satuanKerja.id
+            },
+            include: {
+                model: SatuanKerjaModel,
+                attributes: ["id", "nama_satuan_kerja"]
+            }
 
         });
 
