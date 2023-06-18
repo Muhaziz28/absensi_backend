@@ -62,6 +62,16 @@ export const getMyTunjangan = async (req, res) => {
             }
         })
 
+	 absenMasuk.forEach((item, index) => {
+            const tanggal = new Date(item.created_at).toLocaleDateString()
+            const dataKeterlambatan = keterlambatan.find((item) => item.tanggal === tanggal)
+            if (dataKeterlambatan) {
+                item.dataValues.potongan = dataKeterlambatan.potongan
+            } else {
+                item.dataValues.potongan = 0
+            }
+        })
+
         // hitung jumlah potongan keterlambatan
         const totalPotonganKeterlambatan = keterlambatan.reduce((acc, item) => {
             return acc + item.potongan
