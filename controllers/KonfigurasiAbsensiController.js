@@ -60,3 +60,39 @@ export const createKonfigurasiAbsensi = async (req, res) => {
         return payload(500, false, e.toString(), null, res);
     }
 }
+
+export const updateKonfigurasiAbsensi = async (req, res) => {
+    try {
+        const { jam_masuk, jam_pulang, radius, satuan_kerja_id } = req.body;
+        const { id } = req.params;
+
+        const konfigurasiAbsensi = await KonfigurasiAbsensi.findOne({
+            where: {
+                id: id
+            }
+        })
+
+        if (!konfigurasiAbsensi) {
+            return payload(400, false, "Konfigurasi Absensi tidak ditemukan", null, res);
+        }
+
+        if (!jam_masuk || !jam_pulang || !radius || !satuan_kerja_id) {
+            return payload(400, false, "Data tidak lengkap", null, res);
+        }
+
+        const updateKonfigurasiAbsensi = await KonfigurasiAbsensi.update({
+            jam_masuk: jam_masuk,
+            jam_pulang: jam_pulang,
+            radius: radius,
+            satuan_kerja_id: satuan_kerja_id
+        }, {
+            where: {
+                id: id
+            }
+        })
+
+        return payload(200, true, "Konfigurasi Absensi berhasil ditambahkan", null, res);
+    } catch (e) {
+        return payload(500, false, e.toString(), null, res);
+    }
+}

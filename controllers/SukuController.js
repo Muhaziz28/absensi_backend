@@ -45,3 +45,36 @@ export const createSuku = async (req, res) => {
         return payload(500, false, error.message, null, res)
     }
 }
+
+export const updateSuku = async (req, res) => {
+    try {
+        const { nama_suku } = req.body
+        const { id } = req.params
+        
+        const checkSuku = await Suku.findOne({ where: { nama_suku } })
+        if (checkSuku) return payload(400, false, "Suku sudah terdaftar", null, res)
+
+        const suku = await Suku.update({ nama_suku }, { where: { id } })
+        if (!suku) return payload(400, false, "Suku tidak ditemukan", null, res)
+
+        return payload(200, true, "Suku berhasil diubah", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
+export const deleteSuku = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const checkSuku = await Suku.findOne({ where: { id } })
+        if (!checkSuku) return payload(400, false, "Suku tidak ditemukan", null, res)
+
+        const suku = await Suku.destroy({ where: { id } })
+        if (suku === 0) return payload(400, false, "Suku tidak ditemukan", null, res)
+
+        return payload(200, true, "Suku berhasil dihapus", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}

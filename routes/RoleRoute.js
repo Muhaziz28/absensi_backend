@@ -8,6 +8,6 @@ const router = express.Router()
 router.get("/role", getAllRole)
 router.post("/role", verifyJwt, superadmin, createRole)
 router.put("/role/:id", verifyJwt, superadmin, updateRole)
-router.delete("/role/:id", deleteRole)
+router.delete("/role/:id", verifyJwt, superadmin, deleteRole)
 
 export default router
