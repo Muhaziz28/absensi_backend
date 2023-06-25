@@ -5,6 +5,8 @@ import KonfigurasiAbsensi from "../models/KonfigurasiAbsensiModel.js"
 import payload from "../response_format.js"
 import jwt from "jsonwebtoken"
 import User from "../models/UserModel.js"
+import getDistanceFromLatLonInKm from "../helper/distance.js"
+import SatuanKerja from "../models/SatuanKerjaModel.js"
 
 export const getCurrentHistoryAbsen = async (req, res) => {
     try {
@@ -90,7 +92,7 @@ export const absenMasuk = async (req, res) => {
         const { id } = jwt.verify(token, process.env.JWT_SECRET)
         if (!id) return payload(401, false, "Unauthorized", null, res)
 
-        const { jam_masuk, radius, status } = req.body
+        const { jam_masuk, longitude, latitude, status } = req.body
         let keterlambatan
         let tanggalSaatIni = new Date().toLocaleDateString()
 
@@ -123,10 +125,15 @@ export const absenMasuk = async (req, res) => {
             where: { id: satuanKerjaUser.satuan_kerja_id }
         })
 
-        const konfigurasiAbsensiRadius = konfigurasiAbsensi.radius
-        if (radius > konfigurasiAbsensiRadius) {
-            return payload(400, false, "Anda terlalu jauh dari kantor", null, res)
-        }
+        const satuanKerja = await SatuanKerja.findOne({
+            where: { id: satuanKerjaUser.satuan_kerja_id }
+        })
+
+        // jika jarak user terlalu jauh, hitung berapa meter jarak user dengan kantor
+        const radius = getDistanceFromLatLonInKm(latitude, longitude, Number(satuanKerja.latitude), Number(satuanKerja.longitude)) * 1000
+        if (radius > konfigurasiAbsensi.radius) return payload(400, false, "Anda terlalu jauh dari kantor, jarak anda dengan kantor adalah " + radius + " meter", null, res)
+
+        console.log("radius", radius);
 
         const konfigurasiAbsensiJamMasuk = konfigurasiAbsensi.jam_masuk
         const konfigurasiAbsensiJamMasukSplit = konfigurasiAbsensiJamMasuk.split(":")
@@ -193,7 +200,7 @@ export const absenPulang = async (req, res) => {
         })
         if (!absenMasukCheck) return payload(400, false, "Anda belum absen masuk", null, res)
 
-        const { jam_pulang, radius, status } = req.body
+        const { jam_pulang, latitude, longitude, status } = req.body
 
         const satuanKerjaUser = await User.findOne({
             where: [
@@ -229,11 +236,14 @@ export const absenPulang = async (req, res) => {
 
         if (historyAbsenPulang) return payload(400, false, "Anda sudah absen pulang", null, res)
 
-        const konfigurasiAbsensiRadius = konfigurasiAbsensiCheck.radius
-        if (radius > konfigurasiAbsensiRadius) {
-            return payload(400, false, "Anda terlalu jauh dari kantor", null, res)
-        }
+        const satuanKerja = await SatuanKerja.findOne({
+            where: { id: satuanKerjaUser.satuan_kerja_id }
+        })
 
+        const radius = getDistanceFromLatLonInKm(latitude, longitude, Number(satuanKerja.latitude), Number(satuanKerja.longitude)) * 1000
+        if (radius > konfigurasiAbsensiCheck.radius) return payload(400, false, "Anda terlalu jauh dari kantor, jarak anda dengan kantor adalah " + radius + " meter", null, res)
+
+        console.log(`Radius ${radius} meter`)
         const konfigurasiAbsensiJamPulang = konfigurasiAbsensiCheck.jam_pulang
         const konfigurasiAbsensiJamPulangSplit = konfigurasiAbsensiJamPulang.split(":")
         const konfigurasiAbsensiJamPulangHour = konfigurasiAbsensiJamPulangSplit[0]
