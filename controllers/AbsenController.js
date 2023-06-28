@@ -194,10 +194,12 @@ export const absenPulang = async (req, res) => {
         const { id } = jwt.verify(token, process.env.JWT_SECRET)
         if (!id) return payload(401, false, "Unauthorized", null, res)
 
+        const currentTimeFormat = currentTime.split(" ")[0]
+
         const absenMasukCheck = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
-                { created_at: currentTime }
+                { created_at: { [Op.gte]: currentTimeFormat } },
             ],
             attributes: {
                 exclude: ["user_id", "created_at", "updated_at"],
@@ -228,8 +230,6 @@ export const absenPulang = async (req, res) => {
         }
 
         let cepat
-
-        const currentTimeFormat = currentTime.split(" ")[0]
 
         const historyAbsenPulang = await AbsenPulang.findOne({
             where: [
