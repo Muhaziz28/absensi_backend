@@ -53,10 +53,12 @@ export const getCurrentHistoryAbsenToday = async (req, res) => {
         const { id } = jwt.verify(token, process.env.JWT_SECRET)
         if (!id) return payload(401, false, "Unauthorized", null, res)
 
+        const currentTimeFormat = currentTime.split(" ")[0]
+
         const historyAbsenMasuk = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
-                { created_at: currentTime }
+                { created_at: { [Op.gte]: currentTimeFormat } },
             ],
             attributes: {
                 exclude: ["user_id"],
@@ -64,21 +66,24 @@ export const getCurrentHistoryAbsenToday = async (req, res) => {
             order: [["created_at", "DESC"]],
         })
 
-        console.log('Current Time: ', currentTime)
+
 
         const historyAbsenKeluar = await AbsenPulang.findOne({
             where: [
                 { user_id: id },
-                { created_at: { [Op.gte]: new Date().toLocaleDateString() } }
+                { created_at: { [Op.gte]: currentTimeFormat } },
+                console.log('Current Time Format: ', currentTimeFormat)
             ],
             attributes: {
                 exclude: ["user_id"]
             },
-            order: [["created_at", "DESC"]]
         })
 
+        console.log('History Absen Keluar: ', historyAbsenKeluar)
+
+
         const historyAbsen = {
-            tanggal: new Date().toLocaleDateString(),
+            tanggal: currentTimeFormat,
             absen_masuk: historyAbsenMasuk,
             absen_keluar: historyAbsenKeluar
         }
