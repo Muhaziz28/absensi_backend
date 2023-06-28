@@ -137,7 +137,7 @@ export const absenMasuk = async (req, res) => {
         })
 
         // jika jarak user terlalu jauh, hitung berapa meter jarak user dengan kantor
-        const radius = getDistanceFromLatLonInKm(latitude, longitude, Number(satuanKerja.latitude), Number(satuanKerja.longitude)) * 1000
+        const radius = getDistanceFromLatLonInKm(latitude, longitude, Number(satuanKerja.latitude), Number(satuanKerja.longitude))
         if (radius > konfigurasiAbsensi.radius) return payload(400, false, "Anda terlalu jauh dari kantor, jarak anda dengan kantor adalah " + radius + " meter", null, res)
 
         console.log("radius", radius);
@@ -247,7 +247,7 @@ export const absenPulang = async (req, res) => {
             where: { id: satuanKerjaUser.satuan_kerja_id }
         })
 
-        const radius = getDistanceFromLatLonInKm(latitude, longitude, Number(satuanKerja.latitude), Number(satuanKerja.longitude)) * 1000
+        const radius = getDistanceFromLatLonInKm(latitude, longitude, Number(satuanKerja.latitude), Number(satuanKerja.longitude))
         if (radius > konfigurasiAbsensiCheck.radius) return payload(400, false, "Anda terlalu jauh dari kantor, jarak anda dengan kantor adalah " + radius + " meter", null, res)
 
         console.log(`Radius ${radius} meter`)
