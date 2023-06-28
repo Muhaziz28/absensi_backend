@@ -103,11 +103,12 @@ export const absenMasuk = async (req, res) => {
         const { jam_masuk, longitude, latitude, status } = req.body
         let keterlambatan
 
+        const currentTimeFormat = currentTime.split(" ")[0]
         // user hanya bisa absen masuk 1 kali dalam sehari
         const historyAbsenMasuk = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
-                { created_at: currentTime }
+                { created_at: { [Op.gte]: currentTimeFormat } },
             ],
             attributes: {
                 exclude: ["user_id", "createdAt", "updatedAt"],
@@ -227,11 +228,13 @@ export const absenPulang = async (req, res) => {
         }
 
         let cepat
-        let tanggalSaatIni = new Date().toLocaleDateString()
+
+        const currentTimeFormat = currentTime.split(" ")[0]
+
         const historyAbsenPulang = await AbsenPulang.findOne({
             where: [
                 { user_id: id },
-                { created_at: currentTime }
+                { created_at: { [Op.gte]: currentTimeFormat } }
             ],
             attributes: {
                 exclude: ["user_id", "created_at", "updated_at"],
