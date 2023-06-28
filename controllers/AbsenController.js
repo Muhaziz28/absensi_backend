@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken"
 import User from "../models/UserModel.js"
 import getDistanceFromLatLonInKm from "../helper/distance.js"
 import SatuanKerja from "../models/SatuanKerjaModel.js"
+import timezone from "../helper/timezone.js"
+import currentTime from "../helper/timezone.js"
 
 export const getCurrentHistoryAbsen = async (req, res) => {
     try {
@@ -54,14 +56,15 @@ export const getCurrentHistoryAbsenToday = async (req, res) => {
         const historyAbsenMasuk = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
-                { created_at: { [Op.gte]: new Date().toLocaleDateString() } }
+                { created_at: currentTime }
             ],
             attributes: {
                 exclude: ["user_id"],
             },
             order: [["created_at", "DESC"]],
-
         })
+
+        console.log('Current Time: ', currentTime)
 
         const historyAbsenKeluar = await AbsenPulang.findOne({
             where: [
@@ -94,13 +97,12 @@ export const absenMasuk = async (req, res) => {
 
         const { jam_masuk, longitude, latitude, status } = req.body
         let keterlambatan
-        let tanggalSaatIni = new Date().toLocaleDateString()
 
         // user hanya bisa absen masuk 1 kali dalam sehari
         const historyAbsenMasuk = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
-                { created_at: { [Op.gte]: tanggalSaatIni } }
+                { created_at: currentTime }
             ],
             attributes: {
                 exclude: ["user_id", "createdAt", "updatedAt"],
@@ -189,7 +191,7 @@ export const absenPulang = async (req, res) => {
         const absenMasukCheck = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
-                { created_at: { [Op.gte]: new Date().toLocaleDateString() } }
+                { created_at: currentTime }
             ],
             attributes: {
                 exclude: ["user_id", "created_at", "updated_at"],
@@ -224,7 +226,7 @@ export const absenPulang = async (req, res) => {
         const historyAbsenPulang = await AbsenPulang.findOne({
             where: [
                 { user_id: id },
-                { created_at: { [Op.gte]: tanggalSaatIni } }
+                { created_at: currentTime }
             ],
             attributes: {
                 exclude: ["user_id", "created_at", "updated_at"],
