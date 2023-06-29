@@ -8,6 +8,7 @@ import Suku from "../models/SukuModel.js"
 import SatuanKerja from "../models/SatuanKerjaModel.js"
 import Pangkat from "../models/PangkatModel.js"
 import Jabatan from "../models/JabatanModel.js"
+import bcrypt from "bcrypt"
 
 export const getAllPersonil = async (req, res) => {
     try {
@@ -61,12 +62,24 @@ export const createPersonil = async (req, res) => {
     try {
         const { name, role_id, jabatan_id, pangkat_id, username, email, password, satuan_kerja_id, tempat_lahir, tanggal_lahir, no_hp, jenis_kelamin, foto, status_perkawinan, agama_id, suku_id } = req.body
 
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+        console.log('Pangkat : ', pangkat_id);
+        console.log('Jabatan : ', jabatan_id);
         const user = await User.create({
             name,
             username,
             email,
-            password,
+            jabatan_id,
+            pangkat_id,
+            password: hashedPassword,
             satuan_kerja_id,
+            role_id,
+            is_active: true,
+        })
+
+        const user_detail = await UserDetail.create({
+            user_id: user.id,
             tempat_lahir,
             tanggal_lahir,
             no_hp,
@@ -75,11 +88,9 @@ export const createPersonil = async (req, res) => {
             status_perkawinan,
             agama_id,
             suku_id,
-            role_id,
-            is_active: true,
-            jabatan_id,
-            pangkat_id
         })
+
+        // console.log(user_detail);
 
         return payload(200, true, "Personil created", user, res)
     } catch (error) {
