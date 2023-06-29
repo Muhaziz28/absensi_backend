@@ -15,6 +15,30 @@ import Jabatan from "../models/JabatanModel.js"
 import Pangkat from "../models/PangkatModel.js"
 dotenv.config();
 
+export const changePassword = async (req, res) => {
+    try {
+        const { id } = req.user
+        const { oldPassword, newPassword } = req.body
+
+        const user = await User.findOne({ where: { id } })
+        const validPassword = await bcrypt.compare(oldPassword, user.password)
+        if (!validPassword) return payload(400, false, "Invalid password", null, res)
+
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+        await User.update({
+            password: hashedPassword
+        }, {
+            where: { id }
+        })
+
+        return payload(200, true, "Password changed", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
 export const register = async (req, res) => {
     try {
         const { name, username, email, password, satuan_kerja_id, tempat_lahir, tanggal_lahir, no_hp, jenis_kelamin, foto, status_perkawinan, agama_id, suku_id } = req.body

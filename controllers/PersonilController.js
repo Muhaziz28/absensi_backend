@@ -56,3 +56,33 @@ export const getAllPersonil = async (req, res) => {
         return payload(500, false, error.message, null, res)
     }
 }
+
+export const createPersonil = async (req, res) => {
+    try {
+        const { name, role_id, jabatan_id, pangkat_id, username, email, password, satuan_kerja_id, tempat_lahir, tanggal_lahir, no_hp, jenis_kelamin, foto, status_perkawinan, agama_id, suku_id } = req.body
+
+        const user = await User.create({
+            name,
+            username,
+            email,
+            password,
+            satuan_kerja_id,
+            tempat_lahir,
+            tanggal_lahir,
+            no_hp,
+            jenis_kelamin,
+            foto,
+            status_perkawinan,
+            agama_id,
+            suku_id,
+            role_id,
+            is_active: true,
+            jabatan_id,
+            pangkat_id
+        })
+
+        return payload(200, true, "Personil created", user, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
