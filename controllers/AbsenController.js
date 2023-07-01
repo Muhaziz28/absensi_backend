@@ -7,8 +7,8 @@ import jwt from "jsonwebtoken"
 import User from "../models/UserModel.js"
 import getDistanceFromLatLonInKm from "../helper/distance.js"
 import SatuanKerja from "../models/SatuanKerjaModel.js"
-import timezone from "../helper/timezone.js"
 import currentTime from "../helper/timezone.js"
+import moment from "moment-timezone"
 
 export const getCurrentHistoryAbsenPerUser = async (req, res) => {
     try {
@@ -317,6 +317,225 @@ export const absenPulang = async (req, res) => {
         })
 
         return payload(200, true, "Absen pulang berhasil", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
+export const getAllAbsensiPersonilToday = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(" ")[1]
+        const { id } = jwt.verify(token, process.env.JWT_SECRET)
+        if (!id) return payload(401, false, "Unauthorized", null, res)
+
+        const currentTimeFormat = currentTime.split(" ")[0]
+
+        const satuanKerjaUser = await User.findOne({
+            where: [
+                { id }
+            ],
+            attributes: {
+                exclude: ["id", "password", "createdAt", "updatedAt"],
+            },
+        })
+
+        const userBySatuanKerja = await User.findAll({
+            where: [
+                { satuan_kerja_id: satuanKerjaUser.satuan_kerja_id }
+            ],
+            attributes: {
+                exclude: ["password", "createdAt", "updatedAt"],
+            },
+        })
+
+        // ambil semua absen masuk dan absen pulang hari ini, jika ada user yang belum melakukan absen masuk atau absen pulang, maka akan di push ke array kosong. Tampilkan juga data usernya. Urutan data yang ditampilkan adalah data user, didalam data user ada absen masuk dan absen pulng
+        const absenMasuk = []
+        const absenPulang = []
+        const user = []
+
+        for (let i = 0; i < userBySatuanKerja.length; i++) {
+            const absenMasukCheck = await AbsenMasuk.findOne({
+                where: [
+                    { user_id: userBySatuanKerja[i].id },
+                    { created_at: { [Op.gte]: currentTimeFormat } },
+                ],
+                attributes: {
+                    exclude: ["user_id", "created_at", "updated_at"],
+                },
+                order: [
+                    ["created_at", "DESC"]
+                ]
+            })
+
+            const absenPulangCheck = await AbsenPulang.findOne({
+                where: [
+                    { user_id: userBySatuanKerja[i].id },
+                    { created_at: { [Op.gte]: currentTimeFormat } },
+                ],
+                attributes: {
+                    exclude: ["user_id", "created_at", "updated_at"],
+                },
+                order: [
+                    ["created_at", "DESC"]
+                ]
+            })
+
+            if (!absenMasukCheck) {
+                absenMasuk.push({})
+            } else {
+                absenMasuk.push(absenMasukCheck)
+            }
+
+            if (!absenPulangCheck) {
+                absenPulang.push({})
+            } else {
+                absenPulang.push(absenPulangCheck)
+            }
+
+            user.push(userBySatuanKerja[i])
+        }
+
+        const data = []
+        for (let i = 0; i < user.length; i++) {
+            data.push({
+                user: user[i],
+                absen_masuk: absenMasuk[i],
+                absen_pulang: absenPulang[i]
+            })
+        }
+
+        return payload(200, true, "Data absensi personil hari ini", data, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
+export const tindakDisiplin = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { status } = req.body
+
+        const currentTimeFormat = currentTime.split(" ")[0]
+
+        // cek apakah user sudah melakukan absen masuk atau absen pulang hari ini
+        const absenMasukCheck = await AbsenMasuk.findOne({
+            where: [
+                { user_id: id },
+                { created_at: { [Op.gte]: currentTimeFormat } },
+            ],
+            attributes: {
+                exclude: ["user_id", "created_at", "updated_at"],
+            },
+            order: [
+                ["created_at", "DESC"]
+            ]
+        })
+
+        const absenPulangCheck = await AbsenPulang.findOne({
+            where: [
+                { user_id: id },
+                { created_at: { [Op.gte]: currentTimeFormat } },
+            ],
+            attributes: {
+                exclude: ["user_id", "created_at", "updated_at"],
+            },
+            order: [
+                ["created_at", "DESC"]
+            ]
+        })
+
+        if (absenMasukCheck || absenPulangCheck) return payload(400, false, "User sudah melakukan absen masuk atau absen pulang hari ini", null, res)
+
+        // sakit atau izin
+        await AbsenMasuk.create({
+            user_id: id,
+            status
+        })
+
+        await AbsenPulang.create({
+            user_id: id,
+            status
+        })
+
+        return payload(200, true, "Tindak disiplin berhasil", null, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
+export const rekapAbsensi = async (req, res) => {
+    try {
+        const { start_date, end_date } = req.body
+        let startDateFormat
+        let endDateFormat
+
+        if (!start_date && !end_date) {
+            startDateFormat = moment().startOf("week").format("YYYY-MM-DD")
+            endDateFormat = moment().endOf("week").format("YYYY-MM-DD")
+        } else {
+            startDateFormat = moment(start_date).format("YYYY-MM-DD")
+            endDateFormat = moment(end_date).format("YYYY-MM-DD")
+        }
+
+        // ubah format start_date dan end_date menjadi format datetime
+        const startDateTimeFormat = `${startDateFormat} 00:00:00`
+        const endDateTimeFormat = `${endDateFormat} 23:59:59`
+
+        const hadir = await AbsenMasuk.count({
+            where: [
+                { status: "Hadir" },
+                { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ]
+        })
+
+        const sakit = await AbsenMasuk.count({
+            where: [
+                { status: "Sakit" },
+                { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ]
+        })
+
+        const izin = await AbsenMasuk.count({
+            where: [
+                { status: "Izin" },
+                { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ]
+        })
+
+        const alpa = await AbsenMasuk.count({
+            where: [
+                { status: "Alpa" },
+                { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ]
+        })
+
+        const terlambat = await AbsenMasuk.count({
+            where: [
+                { keterlambatan: { [Op.gt]: 0 } },
+                { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ]
+        })
+
+        const cepatPulang = await AbsenPulang.count({
+            where: [
+                { cepat: { [Op.gt]: 0 } },
+                { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ]
+        })
+
+        const data = {
+            start_date: startDateFormat,
+            end_date: endDateFormat,
+            hadir,
+            sakit,
+            izin,
+            alpa,
+            terlambat,
+            cepat_pulang: cepatPulang
+        }
+
+        return payload(200, true, "Rekap absensi", data, res)
+
     } catch (error) {
         return payload(500, false, error.message, null, res)
     }

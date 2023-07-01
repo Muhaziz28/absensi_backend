@@ -17,11 +17,11 @@ const AbsenPulang = db.define(
         },
         jam_pulang: {
             type: DataTypes.TIME,
-            allowNull: false,
+            allowNull: true,
         },
         radius: {
             type: DataTypes.DOUBLE,
-            allowNull: false,
+            allowNull: true,
         },
         status: {
             type: DataTypes.STRING,
