@@ -6,7 +6,6 @@ import Pangkat from "./PangkatModel.js";
 import SatuanKerja from "./SatuanKerjaModel.js";
 
 const { DataTypes } = Sequelize
-
 const User = db.define(
     "user",
     {

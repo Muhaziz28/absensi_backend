@@ -10,6 +10,40 @@ import SatuanKerja from "../models/SatuanKerjaModel.js"
 import timezone from "../helper/timezone.js"
 import currentTime from "../helper/timezone.js"
 
+export const getCurrentHistoryAbsenPerUser = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const historyAbsenMasuk = await AbsenMasuk.findAll({
+            where: { user_id: id },
+            attributes: {
+                exclude: ["user_id"],
+            },
+            order: [["created_at", "DESC"]],
+        })
+
+        const historyAbsenKeluar = await AbsenPulang.findAll({
+            where: { user_id: id },
+            attributes: {
+                exclude: ["user_id"]
+            },
+            order: [["created_at", "DESC"]]
+        })
+
+        const historyAbsen = historyAbsenMasuk.map((item, index) => {
+            return {
+                tanggal: new Date(item.created_at).toLocaleDateString(),
+                absen_masuk: item,
+                absen_keluar: historyAbsenKeluar[index]
+            }
+        })
+
+        return payload(200, true, "Data history absen", historyAbsen, res)
+    } catch (error) {
+        return payload(500, false, error.message, null, res)
+    }
+}
+
 export const getCurrentHistoryAbsen = async (req, res) => {
     try {
         const token = req.headers.authorization.split(" ")[1]
@@ -22,7 +56,6 @@ export const getCurrentHistoryAbsen = async (req, res) => {
                 exclude: ["user_id"],
             },
             order: [["created_at", "DESC"]],
-
         })
 
         const historyAbsenKeluar = await AbsenPulang.findAll({
@@ -54,7 +87,7 @@ export const getCurrentHistoryAbsenToday = async (req, res) => {
         if (!id) return payload(401, false, "Unauthorized", null, res)
 
         const currentTimeFormat = currentTime.split(" ")[0]
-
+        console.log('Current time ', currentTime)
         const historyAbsenMasuk = await AbsenMasuk.findOne({
             where: [
                 { user_id: id },
@@ -66,8 +99,6 @@ export const getCurrentHistoryAbsenToday = async (req, res) => {
             order: [["created_at", "DESC"]],
         })
 
-
-
         const historyAbsenKeluar = await AbsenPulang.findOne({
             where: [
                 { user_id: id },
@@ -78,9 +109,6 @@ export const getCurrentHistoryAbsenToday = async (req, res) => {
                 exclude: ["user_id"]
             },
         })
-
-        console.log('History Absen Keluar: ', historyAbsenKeluar)
-
 
         const historyAbsen = {
             tanggal: currentTimeFormat,
