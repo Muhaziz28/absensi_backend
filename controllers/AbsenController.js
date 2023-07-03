@@ -481,42 +481,42 @@ export const rekapAbsensi = async (req, res) => {
         const startDateTimeFormat = `${startDateFormat} 00:00:00`
         const endDateTimeFormat = `${endDateFormat} 23:59:59`
 
-        const hadir = await AbsenMasuk.count({
+        const hadir = await AbsenMasuk.findAndCountAll({
             where: [
                 { status: "Hadir" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
             ]
         })
 
-        const sakit = await AbsenMasuk.count({
+        const sakit = await AbsenMasuk.findAndCountAll({
             where: [
                 { status: "Sakit" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
             ]
         })
 
-        const izin = await AbsenMasuk.count({
+        const izin = await AbsenMasuk.findAndCountAll({
             where: [
                 { status: "Izin" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
             ]
         })
 
-        const alpa = await AbsenMasuk.count({
+        const alpa = await AbsenMasuk.findAndCountAll({
             where: [
                 { status: "Alpa" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
             ]
         })
 
-        const terlambat = await AbsenMasuk.count({
+        const terlambat = await AbsenMasuk.findAndCountAll({
             where: [
                 { keterlambatan: { [Op.gt]: 0 } },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
             ]
         })
 
-        const cepatPulang = await AbsenPulang.count({
+        const cepatPulang = await AbsenPulang.findAndCountAll({
             where: [
                 { cepat: { [Op.gt]: 0 } },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },

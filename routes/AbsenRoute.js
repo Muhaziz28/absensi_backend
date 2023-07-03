@@ -12,6 +12,6 @@ router.post("/absen-pulang", verifyJwt, absenPulang)
 router.get("/absensi-personil/:id", verifyJwt, getCurrentHistoryAbsenPerUser)
 router.get("/absensi-personil-today", verifyJwt, getAllAbsensiPersonilToday)
 router.post("/tindak-disiplin/:id", verifyJwt, tindakDisiplin)
-router.get("/rekap-absensi", verifyJwt, rekapAbsensi)
+router.post("/rekap-absensi", verifyJwt, rekapAbsensi)
 
 export default router
