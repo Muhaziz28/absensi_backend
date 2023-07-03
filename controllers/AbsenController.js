@@ -485,6 +485,14 @@ export const rekapAbsensi = async (req, res) => {
             where: [
                 { status: "Hadir" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt", "role_id", "jabatan_id", "pangkat_id", "satuan_kerja_id"]
+                    }
+                }
             ]
         })
 
@@ -492,6 +500,14 @@ export const rekapAbsensi = async (req, res) => {
             where: [
                 { status: "Sakit" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt", "role_id", "jabatan_id", "pangkat_id", "satuan_kerja_id"]
+                    }
+                }
             ]
         })
 
@@ -499,6 +515,14 @@ export const rekapAbsensi = async (req, res) => {
             where: [
                 { status: "Izin" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt", "role_id", "jabatan_id", "pangkat_id", "satuan_kerja_id"]
+                    }
+                }
             ]
         })
 
@@ -506,6 +530,14 @@ export const rekapAbsensi = async (req, res) => {
             where: [
                 { status: "Alpa" },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt", "role_id", "jabatan_id", "pangkat_id", "satuan_kerja_id"]
+                    }
+                }
             ]
         })
 
@@ -513,6 +545,14 @@ export const rekapAbsensi = async (req, res) => {
             where: [
                 { keterlambatan: { [Op.gt]: 0 } },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt", "role_id", "jabatan_id", "pangkat_id", "satuan_kerja_id"]
+                    }
+                }
             ]
         })
 
@@ -520,6 +560,14 @@ export const rekapAbsensi = async (req, res) => {
             where: [
                 { cepat: { [Op.gt]: 0 } },
                 { created_at: { [Op.between]: [startDateTimeFormat, endDateTimeFormat] } },
+            ],
+            include: [
+                {
+                    model: User,
+                    attributes: {
+                        exclude: ["password", "createdAt", "updatedAt", "role_id", "jabatan_id", "pangkat_id", "satuan_kerja_id"]
+                    }
+                }
             ]
         })
 
